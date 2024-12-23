@@ -1,5 +1,6 @@
 // import React from 'react'
 import * as React from 'react';
+import { createColumnHelper } from '@tanstack/react-table';
 
 //import { useState } from 'react'
 import './App.css'
@@ -10,17 +11,93 @@ import {
   AccordionTrigger,
 } from "components/base/ui/accordion"
 
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "components/base/ui/table"
+import {Table} from "components/base/ui/table";
+
 import { variantsData } from './variant_data'
+
+
+// TODO: TO REMOVE
+type Person = {
+  firstName: string
+  lastName: string
+  age: number
+  visits: number
+  status: string
+  progress: number
+}
+
+const data: Person[] = [
+  {
+    firstName: 'tanner',
+    lastName: 'linsley',
+    age: 24,
+    visits: 100,
+    status: 'In Relationship',
+    progress: 50,
+  },
+  {
+    firstName: 'tandy',
+    lastName: 'miller',
+    age: 40,
+    visits: 40,
+    status: 'Single',
+    progress: 80,
+  },
+  {
+    firstName: 'joe',
+    lastName: 'dirte',
+    age: 45,
+    visits: 20,
+    status: 'Complicated',
+    progress: 10,
+  },
+]
+
+const firstName = ['david', 'linda', 'michel', 'alex', 'valerie', 'george', 'henri'];
+const lastName = ['smiht', 'tremblay', 'washington', 'doe'];
+const status = ['relationship', 'friend', 'enemy']
+
+for (let i = 0; i < 100; i++) {
+  data.push({
+    firstName: firstName[Math.floor(Math.random()*firstName.length)],
+    lastName: lastName[Math.floor(Math.random()*lastName.length)],
+    age: Math.floor(Math.random() * 100),
+    visits: Math.floor(Math.random() * 1000),
+    status: status[Math.floor(Math.random()*status.length)],
+    progress: Math.floor(Math.random() * 100),
+  });
+}
+
+const columnHelper = createColumnHelper<Person>()
+const columns = [
+  columnHelper.accessor('firstName', {
+    cell: info => info.getValue(),
+    footer: info => info.column.id,
+  }),
+  columnHelper.accessor(row => row.lastName, {
+    id: 'lastName',
+    cell: info => <i>{info.getValue()}</i>,
+    header: () => <span>Last Name</span>,
+    footer: info => info.column.id,
+  }),
+  columnHelper.accessor('age', {
+    header: () => 'Age',
+    cell: info => info.renderValue(),
+    footer: info => info.column.id,
+  }),
+  columnHelper.accessor('visits', {
+    header: () => <span>Visits</span>,
+    footer: info => info.column.id,
+  }),
+  columnHelper.accessor('status', {
+    header: 'Status',
+    footer: info => info.column.id,
+  }),
+  columnHelper.accessor('progress', {
+    header: 'Profile Progress',
+    footer: info => info.column.id,
+  }),
+]
 
 export interface AppProps {
   api: string,
@@ -71,32 +148,7 @@ function App({ api }: AppProps) {
 
       <main className="flex-1 p-4 h-full">
         <h1 className="text-2xl font-bold">Variant</h1>
-        <Table>
-          <TableCaption>Variant Data</TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[100px]">Variant</TableHead>
-              <TableHead>dna Change</TableHead>
-              <TableHead className="text-right">Location</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {variantsData.variants.map((data) => (
-              <TableRow key={data.ensembl_gene_id}>
-                <TableCell className="font-medium">{data.symbol}</TableCell>
-                <TableCell>{data.name}</TableCell>
-                <TableCell className="text-right">{data.location}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={3}>Can be pagination</TableCell>
-              <TableCell className="text-right">1 / 1</TableCell>
-            </TableRow>
-          </TableFooter>
-        </Table>
-
+        <Table columns={columns} data={data} />
       </main>
     </div >
   )
